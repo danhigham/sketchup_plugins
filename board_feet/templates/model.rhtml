@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- <link rel="icon" href="../../favicon.ico"> -->
+
+    <title>Board Foot Calculator</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/board_feet.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <div class="container">
+
+      <div class="starter-template">
+        <h1>Board Foot Calculator</h1>
+        <p class="lead">Entities (groups) are summarized by name and thicknes, then listed individually.</p>
+
+        <h3 class="page-header">Agregate</h3>
+        <h4>By Name</h4>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Entity</th>
+              <th>Dimensions</th>
+              <th>S2S Thickness</th>
+              <th>Board Feet</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% by_name = @entities.map{ |x| {
+                :name => x.name,
+                :board_feet => @entities.select{ |y| y.name == x.name}.inject(0){ |sum, y| sum + y.board_feet }.round(2),
+                :stock_size => x.stock_size,
+                :height => x.bounds.height.to_s,
+                :width => x.bounds.width.to_s,
+                :depth => x.bounds.depth.to_s } }.uniq
+            %>
+            <% by_name.sort{ |x,y| y[:name] <=> x[:name] }.each do |e| %>
+            <tr>
+              <td class="name"><%= e[:name] %></td>
+              <td><%= e[:width] %> x <%= e[:height] %> x <%= e[:depth] %></td>
+              <td><%= e[:stock_size] %></td>
+              <td><%= e[:board_feet] %></td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+
+        <h4>By Thickness</h4>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>S2S Thickness</th>
+              <th>Board Feet</th>
+              <th>Minimum Length</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% by_thickness = @entities.map{ |x| {
+                :board_feet => @entities.select{ |y| y.stock_size == x.stock_size}.inject(0){ |sum, y| sum + y.board_feet }.round(2),
+                :min_length => @entities.select{ |y| y.stock_size == x.stock_size}.map{ |y| y.longest_side }.max,
+                :stock_size => x.stock_size } }.uniq
+            %>
+            <% by_thickness.sort{ |x,y| y[:stock_size] <=> x[:stock_size] }.each do |e| %>
+            <tr>
+              <td class="name"><%= e[:stock_size] %></td>
+              <td><%= e[:board_feet] %></td>
+              <td><%= e[:min_length] %></td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+
+
+        <h3 class="page-header">Entities</h3>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Entity</th>
+              <th>Dimensions</th>
+              <th>S2S Thickness</th>
+              <th>Board Feet</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @entities.sort{ |x,y| y.name <=> x.name }.each do |e| %>
+            <tr>
+              <td class="name"><%= e.name %></td>
+              <td><%= e.bounds.width %> x <%= e.bounds.height %> x <%= e.bounds.depth %></td>
+              <td><%= e.stock_size %></td>
+              <td><%= e.board_feet %></td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+
+      </div>
+
+    </div><!-- /.container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/js/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="./js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="/js/bootstrap.min.js"></script>
+  </body>
+</html>
